@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rock Throw Simulation</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Rock Throw Simulation</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 <body>
 	<div id="canvas-container" />
 
-  <script>
+	<script>
 		let canvas, angleSlider, velocitySlider, massSlider, hightSlider, 
 			densitySlider, dragCoefficientSlider, scaleSlider;
 		let startButton, stopButton, resetButton;
@@ -34,20 +34,20 @@
 		};
 		let rock;
 
-    function setup() {
+		function setup() {
 			canvas = createCanvas(windowWidth, windowHeight);
 			canvas.position(0, 0);
-  		canvas.parent('canvas-container');
+			canvas.parent('canvas-container');
 
-		  massSlider = createSlider(0.1, 10, defaultState.mass, 0.1);
+			massSlider = createSlider(0.1, 10, defaultState.mass, 0.1);
 			massSlider.position(100, 10);
 			massSlider.input(updateSlider);
-		  
-		  angleSlider = createSlider(0, 90, 45);
+			
+			angleSlider = createSlider(0, 90, 45);
 			angleSlider.position(100, 40);
 			angleSlider.input(updateSlider);
-		  
-		  velocitySlider = createSlider(0, 25, 10);
+			
+			velocitySlider = createSlider(0, 25, 10);
 			velocitySlider.position(100, 70);
 			velocitySlider.input(updateSlider);
 
@@ -62,47 +62,47 @@
 			dragCoefficientSlider = createSlider(0, 1, defaultState.dragCoefficient, 0.01);
 			dragCoefficientSlider.position(100, 160);
 			dragCoefficientSlider.input(updateSlider);
-		  
+			
 			scaleSlider = createSlider(0.01, 0.04, 0.02, 0.005);
 			scaleSlider.position(430, 10);
 			scaleSlider.input(() => scale = scaleSlider.value());
 
-		  startButton = createButton('Start');
+			startButton = createButton('Start');
 			startButton.position(350, 40);
-		  startButton.mousePressed(startSimulation);
+			startButton.mousePressed(startSimulation);
 
 			stopButton = createButton('Stop');
 			stopButton.position(400, 40);
-		  stopButton.mousePressed(() => isSimulating = false);
+			stopButton.mousePressed(() => isSimulating = false);
 
 			resetButton = createButton('Reset');
 			resetButton.position(450, 40);
-		  resetButton.mousePressed(resetSimulation);
+			resetButton.mousePressed(resetSimulation);
 
 			resetSimulation();
 		}
 
 		function arrow(x1, y1, x2, y2, offset) {
-		  // this code is to make the arrow point
-		  line(x1,y1,x2,y2)
-		  push() //start new drawing state
-		  var angle = atan2(y1 - y2, x1 - x2); //gets the angle of the line
-		  translate(x2, y2); //translates to the destination vertex
-		  rotate(angle - HALF_PI); //rotates the arrow point
+			// this code is to make the arrow point
+			line(x1,y1,x2,y2)
+			push() //start new drawing state
+			var angle = atan2(y1 - y2, x1 - x2); //gets the angle of the line
+			translate(x2, y2); //translates to the destination vertex
+			rotate(angle - HALF_PI); //rotates the arrow point
 			translate(0, -offset);
-		  triangle(-offset * 0.6, offset*1.5, offset * 0.6, offset*1.5, 0, 0); //draws the arrow point as a triangle
-		  pop();
+			triangle(-offset * 0.6, offset*1.5, offset * 0.6, offset*1.5, 0, 0); //draws the arrow point as a triangle
+			pop();
 		}
 
 		function simulate(dt) {
 			next = {
 				x: rock.x + rock.vx * dt,
-		    y: rock.y + rock.vy * dt,
+				y: rock.y + rock.vy * dt,
 			};
 			
 			// Check if rock hits ground
-	    if (next.y < defaultState.y) {
-	      isSimulating = false;
+			if (next.y < defaultState.y) {
+				isSimulating = false;
 				rock = {
 					...rock,
 					x: rock.x + (next.x - rock.x) * (defaultState.y - rock.y) / (next.y - rock.y),
@@ -130,10 +130,10 @@
 			}
 		}
 
-    function draw() {
-		  background(220);
+		function draw() {
+			background(220);
 
-		  fill(0);
+			fill(0);
 
 			textSize(16);
 			text('Mass:', 20, 27);
@@ -152,10 +152,10 @@
 			text('Scale:', 350, 27);
 			text(Math.round(1 / scaleSlider.value()) + ' : 1 (px/m)', 580, 27);
 			text('Distance:', 350, 87);
-		  distance = rock.x - defaultState.x;
+			distance = rock.x - defaultState.x;
 			text(Math.round(distance * 100) / 100 + ' m', 430, 87);
 		
-		  if (isSimulating) {
+			if (isSimulating) {
 				simulate(deltaTime / 1000);
 			}
 
@@ -165,7 +165,7 @@
 				y: height - (rock.y / scale + size / 2)
 			}
 			// Draw rock
-		  ellipse(center.x, center.y, size, size);
+			ellipse(center.x, center.y, size, size);
 			// Draw velocity vector
 			if (rock.y > defaultState.y || rock.x == defaultState.x) {
 				fill(255, 0, 0);
@@ -178,7 +178,7 @@
 
 		function resetSimulation() {
 			// Reset simulation state
-		  rock = { 
+			rock = { 
 				...defaultState, 
 				vx: velocitySlider.value() * cos(angleSlider.value() * PI / 180),
 				vy: velocitySlider.value() * sin(angleSlider.value() * PI / 180),
@@ -188,7 +188,7 @@
 				size: Math.cbrt(massSlider.value() / densitySlider.value()),
 				dragCoefficient: dragCoefficientSlider.value()
 			};
-		  isSimulating = false;
+			isSimulating = false;
 		}
 
 		function updateSlider() {
@@ -198,10 +198,10 @@
 		}
 
 		function startSimulation() {
-		  resetSimulation();
-		  isSimulating = true;
+			resetSimulation();
+			isSimulating = true;
 		}
-  </script>
+	</script>
 </body>
 </html>
 
