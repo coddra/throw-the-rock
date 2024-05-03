@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rock Throw Simulation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+	<div id="canvas-container" />
+
+  <script>
+		let canvas, angleSlider, velocitySlider, massSlider, hightSlider, 
+			densitySlider, dragCoefficientSlider, scaleSlider;
+		let startButton, stopButton, resetButton;
+
+		const gravity = -9.81;
+		const airDensity = 1.225;
+
+		let scale = 0.02; // 1 meter = 50 pixels
+		let isSimulating = false;
+		
+		let defaultState = { 
+			x: 100 * scale,
+			y: 100 * scale,
+			vx: 0,
+			vy: 0,
+			ax: 0,
+			ay: gravity,
+			mass: 8,
+			density: 64,
+			size: 0.5,
+			dragCoefficient: 0.47
+		};
+		let rock;
+
+    function setup() {
+			canvas = createCanvas(windowWidth, windowHeight);
+			canvas.position(0, 0);
+  		canvas.parent('canvas-container');
+
+		  massSlider = createSlider(0.1, 10, defaultState.mass, 0.1);
+			massSlider.position(100, 10);
+			massSlider.input(updateSlider);
+		  
+		  angleSlider = createSlider(0, 90, 45);
+			angleSlider.position(100, 40);
+			angleSlider.input(updateSlider);
+		  
+		  velocitySlider = createSlider(0, 25, 10);
+			velocitySlider.position(100, 70);
+			velocitySlider.input(updateSlider);
+
+			hightSlider = createSlider(0, 20, 0);
+			hightSlider.position(100, 100);
+			hightSlider.input(updateSlider);
+
+			densitySlider = createSlider(1, 100, defaultState.density);
+			densitySlider.position(100, 130);
+			densitySlider.input(updateSlider);
+
+			dragCoefficientSlider = createSlider(0, 1, defaultState.dragCoefficient, 0.01);
+			dragCoefficientSlider.position(100, 160);
+			dragCoefficientSlider.input(updateSlider);
+		  
+			scaleSlider = createSlider(0.01, 0.04, 0.02, 0.005);
+			scaleSlider.position(430, 10);
+			scaleSlider.input(() => scale = scaleSlider.value());
+
+		  startButton = createButton('Start');
+			startButton.position(350, 40);
+		  startButton.mousePressed(startSimulation);
+
+			stopButton = createButton('Stop');
+			stopButton.position(400, 40);
+		  stopButton.mousePressed(() => isSimulating = false);
+
+			resetButton = createButton('Reset');
+			resetButton.position(450, 40);
+		  resetButton.mousePressed(resetSimulation);
+
+			resetSimulation();
+		}
+
+		function arrow(x1, y1, x2, y2, offset) {
+		  // this code is to make the arrow point
+		  line(x1,y1,x2,y2)
+		  push() //start new drawing state
+		  var angle = atan2(y1 - y2, x1 - x2); //gets the angle of the line
+		  translate(x2, y2); //translates to the destination vertex
+		  rotate(angle - HALF_PI); //rotates the arrow point
+			translate(0, -offset);
+		  triangle(-offset * 0.6, offset*1.5, offset * 0.6, offset*1.5, 0, 0); //draws the arrow point as a triangle
+		  pop();
+		}
+
+		function simulate(dt) {
+			next = {
+				x: rock.x + rock.vx * dt,
+		    y: rock.y + rock.vy * dt,
+			};
+			
+			// Check if rock hits ground
+	    if (next.y < defaultState.y) {
+	      isSimulating = false;
+				rock = {
+					...rock,
+					x: rock.x + (next.x - rock.x) * (defaultState.y - rock.y) / (next.y - rock.y),
+					y: defaultState.y,
+					vx: 0,
+					vy: 0,
+				}
+			} else {
+				speedsq = rock.vx ** 2 + rock.vy ** 2;
+				speed = Math.sqrt(speedsq);
+
+				drag = -0.5 * airDensity * rock.dragCoefficient * Math.PI * rock.size ** 2 * speedsq;
+				dragX = drag * rock.vx / speed;
+				dragY = drag * rock.vy / speed;
+
+				rock = {
+					...rock,
+					x: next.x,
+					y: next.y,
+					vx: rock.vx + rock.ax * dt,
+					vy: rock.vy + rock.ay * dt,
+					ax: dragX / rock.mass,
+					ay: gravity + dragY / rock.mass,
+				}
+			}
+		}
+
+    function draw() {
+		  background(220);
+
+		  fill(0);
+
+			textSize(16);
+			text('Mass:', 20, 27);
+			text(massSlider.value() + ' kg', 250, 27);
+			text('Angle:', 20, 57);
+			text(angleSlider.value() + '°', 250, 57);
+			text('Velocity:', 20, 87);
+			text(velocitySlider.value() + ' m/s', 250, 87);
+			text('Hight:', 20, 117);
+			text(hightSlider.value() + ' m', 250, 117);
+			text('Density:', 20, 147);
+			text(densitySlider.value() + ' kg/m³', 250, 147);
+			text('Drag:', 20, 177);
+			text(dragCoefficientSlider.value(), 250, 177);
+
+			text('Scale:', 350, 27);
+			text(Math.round(1 / scaleSlider.value()) + ' : 1 (px/m)', 580, 27);
+			text('Distance:', 350, 87);
+		  distance = rock.x - defaultState.x;
+			text(Math.round(distance * 100) / 100 + ' m', 430, 87);
+		
+		  if (isSimulating) {
+				simulate(deltaTime / 1000);
+			}
+
+			size = rock.size / scale;
+			center = {
+				x: rock.x / scale, 
+				y: height - (rock.y / scale + size / 2)
+			}
+			// Draw rock
+		  ellipse(center.x, center.y, size, size);
+			// Draw velocity vector
+			if (rock.y > defaultState.y || rock.x == defaultState.x) {
+				fill(255, 0, 0);
+				arrow(center.x, center.y, center.x + rock.vx / scale / 10, center.y - rock.vy / scale / 10, 0.1 / scale); 
+			}
+
+			fill(200);
+			rect(0, height - defaultState.y / scale, width, defaultState.y / scale);
+		}
+
+		function resetSimulation() {
+			// Reset simulation state
+		  rock = { 
+				...defaultState, 
+				vx: velocitySlider.value() * cos(angleSlider.value() * PI / 180),
+				vy: velocitySlider.value() * sin(angleSlider.value() * PI / 180),
+				y: hightSlider.value() + defaultState.y,
+				mass: massSlider.value(),
+				density: densitySlider.value(),
+				size: Math.cbrt(massSlider.value() / densitySlider.value()),
+				dragCoefficient: dragCoefficientSlider.value()
+			};
+		  isSimulating = false;
+		}
+
+		function updateSlider() {
+			if (!isSimulating) {
+				resetSimulation();
+			}
+		}
+
+		function startSimulation() {
+		  resetSimulation();
+		  isSimulating = true;
+		}
+  </script>
+</body>
+</html>
+
