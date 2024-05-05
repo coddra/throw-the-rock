@@ -14,6 +14,8 @@
 			densitySlider, dragCoefficientSlider, scaleSlider;
 		let startButton, stopButton, resetButton;
 
+		const renderSizeMultiplier = 3;
+
 		const gravity = -9.81;
 		const airDensity = 1.225;
 
@@ -21,15 +23,15 @@
 		let isSimulating = false;
 		
 		let defaultState = { 
-			x: 100 * scale,
+			x: 100 * scale, // 100 px in meters
 			y: 100 * scale,
 			vx: 0,
 			vy: 0,
 			ax: 0,
 			ay: gravity,
-			mass: 8,
-			density: 64,
-			size: 0.5,
+			mass: 4,
+			density: 400,
+			size: 0.1,
 			dragCoefficient: 0.47
 		};
 		let rock;
@@ -55,7 +57,7 @@
 			hightSlider.position(100, 100);
 			hightSlider.input(updateSlider);
 
-			densitySlider = createSlider(1, 100, defaultState.density);
+			densitySlider = createSlider(10, 2000, defaultState.density);
 			densitySlider.position(100, 130);
 			densitySlider.input(updateSlider);
 
@@ -159,7 +161,7 @@
 				simulate(deltaTime / 1000);
 			}
 
-			size = rock.size / scale;
+			size = rock.size / scale * renderSizeMultiplier;
 			center = {
 				x: rock.x / scale, 
 				y: height - (rock.y / scale + size / 2)
