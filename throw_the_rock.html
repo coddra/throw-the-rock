@@ -19,12 +19,12 @@
 		const gravity = -9.81;
 		const airDensity = 1.225;
 
-		let scale = 0.02; // 1 meter = 50 pixels
+		let scale, borders;
 		let isSimulating = false;
 		
 		let defaultState = { 
-			x: 100 * scale, // 100 px in meters
-			y: 100 * scale,
+			x: 0,
+			y: 0,
 			vx: 0,
 			vy: 0,
 			ax: 0,
@@ -37,11 +37,14 @@
 		let rock;
 
 		function setup() {
+			scale = 40 / windowWidth; // the screen with is 40 meters
+			borders = windowHeight / 20;
+
 			canvas = createCanvas(windowWidth, windowHeight);
 			canvas.position(0, 0);
 			canvas.parent('canvas-container');
 
-			massSlider = createSlider(0.1, 10, defaultState.mass, 0.1);
+			massSlider = createSlider(0.1, 10, defaultState.mass, 0.05);
 			massSlider.position(100, 10);
 			massSlider.input(updateSlider);
 			
@@ -82,6 +85,12 @@
 			resetButton.mousePressed(resetSimulation);
 
 			resetSimulation();
+		}
+
+		function windowResized() {
+			resizeCanvas(windowWidth, windowHeight);
+			scale = 40 / windowWidth;
+			borders = windowHeight / 20;
 		}
 
 		function arrow(x1, y1, x2, y2, offset) {
@@ -163,8 +172,8 @@
 
 			size = rock.size / scale * renderSizeMultiplier;
 			center = {
-				x: rock.x / scale, 
-				y: height - (rock.y / scale + size / 2)
+				x: rock.x / scale + borders, 
+				y: height - (rock.y / scale + size / 2 + borders)
 			}
 			// Draw rock
 			ellipse(center.x, center.y, size, size);
@@ -175,7 +184,7 @@
 			}
 
 			fill(200);
-			rect(0, height - defaultState.y / scale, width, defaultState.y / scale);
+			rect(0, height - borders, width, borders);
 		}
 
 		function resetSimulation() {
