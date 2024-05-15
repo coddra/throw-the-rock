@@ -68,7 +68,7 @@
 			dragCoefficientSlider.position(100, 160);
 			dragCoefficientSlider.input(updateSlider);
 			
-			scaleSlider = createSlider(0.01, 0.04, 0.02, 0.005);
+			scaleSlider = createSlider(20 / windowWidth, 70 / windowWidth, scale, 1 / windowWidth);
 			scaleSlider.position(430, 10);
 			scaleSlider.input(() => scale = scaleSlider.value());
 
@@ -161,7 +161,7 @@
 			text(dragCoefficientSlider.value(), 250, 177);
 
 			text('Scale:', 350, 27);
-			text(Math.round(1 / scaleSlider.value()) + ' : 1 (px/m)', 580, 27);
+			text(Math.round(scaleSlider.value() * width) + ' m', 580, 27);
 			text('Distance:', 350, 87);
 			distance = rock.x - defaultState.x;
 			text(Math.round(distance * 100) / 100 + ' m', 430, 87);
